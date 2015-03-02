@@ -12,67 +12,13 @@
 <script>
     var canvas = document.getElementById('main');
     canvas.width = window.innerWidth;
+    var cheight = canvas.height,
+        cwidth = canvas.width;
+
     var ctx = canvas.getContext('2d');
-    var id = ctx.createImageData(1, 1); // only do this once per page
-    var d0 = id.data;                        // only do this once per page
-    d0[0] = 0;
-    d0[1] = 0;
-    d0[2] = 0;
-    d0[3] = 255;
-
-    function putpixel(x, y, c) {
-        d0[0] = 0;
-
-        if (c < 10) {
-            d0[2] = 100 + c*10;
-            d0[1] = 0;
-            d0[0] = 0;
-        }
-
-        if (c > 9 && c < 30) {
-            d0[1] = (c-9)*10
-        }
-
-        if (c > 29) {
-            d0[0] = (c-28) * 10;
-        } else {
-            d0[0] = 0;
-        }
-
-        ctx.putImageData(id, x, y);
-    }
-
-    var xcor = 0;
-    var ycor = 0;
-    var zoom = 4.0;
-
-    function mandelbrot() {
-        var height = canvas.height,
-                width = canvas.width,
-                max = 50;
-        for (var row = 0; row < height; row++) {
-            for (var col = 0; col < width; col++) {
-                var c_re = xcor + (col - width / 2.0) * zoom / width;
-                var c_im = ycor + (row - height / 2.0) * zoom / width;
-                var x = 0, y = 0;
-                var iteration = 0;
-                while (x * x + y * y <= 4 && iteration < max) {
-                    var x_new = x * x - y * y + c_re;
-                    y = 2 * x * y + c_im;
-                    x = x_new;
-                    iteration++;
-                }
-                if (iteration < max) {
-                    putpixel(col, row, iteration);
-                } else {
-//                    putpixel(col, row, iteration);
-                }
-            }
-        }
-    }
-
-    mandelbrot();
 </script>
+
+<script src="sets.js"></script>
 
 </body>
 </html>
