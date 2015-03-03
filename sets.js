@@ -2,8 +2,17 @@
  * Created by rodik on 3/2/15.
  */
 
+
+/*
+ TODO:
+     Show coord at mouse
+     draw grid on real whole X and Y
+     draw crosshair at 0/0 and at middle of view
+     make better zoom function
+ */
+
 var canvasData;
-var maxiterations = 50;
+var maxiterations = 200;
 function drawPixel(x, y, r, g, b, a) {
     var index = (x + y * cwidth) * 4;
 
@@ -14,6 +23,19 @@ function drawPixel(x, y, r, g, b, a) {
 }
 function updateCanvas() {
     ctx.putImageData(canvasData, 0, 0);
+}
+
+
+gridData = ctx.getImageData(0, 0, cwidth, cheight);
+function updateGrid() {
+
+}
+function drawGrid() {
+    ctx.beginPath();
+    ctx.strokeStyle = '#ff2222';
+    ctx.moveTo(0,0);
+    ctx.lineTo(300,150);
+    ctx.stroke();
 }
 
 function putpixel(x, y, c) {
@@ -34,15 +56,37 @@ function putpixel(x, y, c) {
     }
 
     if (c > 29) {
-        r = (c - 28) * 10;
+        r = (c - 29) * 5;
     }
 
     drawPixel(x, y, r, g, b, 255);
 }
 
+function getComplexX(x) {
+    return view.x + ((x - cwidth / 2.0) * view.zoom / cwidth);
+}
+function getComplexY(y) {
+    return view.y + ((y - cheight / 2.0) * view.zoom / cwidth);
+}
+function getRealX(cx) {
+
+}
+function getRealY(cy) {
+
+}
+
 var view = {x:0,y:0,zoom:4.0};
 function resetView() {
     view = {x:0,y:0,zoom:4.0};
+}
+
+function zoom(multiplier, x, y) {
+    view.zoom /= multiplier || 2;
+    if (x === undefined) {
+
+    }
+    view.x += (x - cwidth / 2.0) * view.zoom / cwidth * 2;
+    view.y += (y - cheight / 2.0) * view.zoom / cwidth * 2;
 }
 
 function runSet() {
@@ -64,8 +108,8 @@ function runSet() {
 }
 
 function mandelbrot(row, col, max) {
-    var cx = view.x + (col - cwidth / 2.0) * view.zoom / cwidth,
-        cy = view.y + (row - cheight / 2.0) * view.zoom / cwidth;
+    var cx = getComplexX(col),
+        cy = getComplexY(row);
 
     var x = 0,
         y = 0,
@@ -82,41 +126,3 @@ function mandelbrot(row, col, max) {
 
 runSet();
 
-canvas.onclick = onclick;
-function onclick(evt) {
-    console.log('evt', evt);
-    var x = evt.x, y = evt.y;
-
-    view.zoom /= 2;
-    console.log('calc (x - cwidth / 2.0)', (x - cwidth / 2.0));
-    console.log('calc (x - cwidth / 2.0) * view.zoom', (x - cwidth / 2.0) * view.zoom);
-    console.log('calc (x - cwidth / 2.0) * view.zoom / cwidth', (x - cwidth / 2.0) * view.zoom / cwidth);
-    view.x += (x - cwidth / 2.0) * view.zoom / cwidth;
-    view.y += (y - cheight / 2.0) * view.zoom / cwidth;
-
-    runSet();
-}
-
-window.addEventListener('keydown', function(event) {
-    switch (event.keyCode) {
-        case 37: // Left
-            view.x -= 0.01 * view.zoom;
-            runSet();
-            break;
-
-        case 38: // Up
-            view.y -= 0.01 * view.zoom;
-            runSet();
-            break;
-
-        case 39: // Right
-            view.x += 0.01 * view.zoom;
-            runSet();
-            break;
-
-        case 40: // Down
-            view.y += 0.01 * view.zoom;
-            runSet();
-            break;
-    }
-}, false);
