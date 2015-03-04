@@ -9,15 +9,22 @@
 <h1>Fractals</h1>
 <canvas id="main" height="600"></canvas>
 
+<div class="console" style="font-family:'andale mono'">
+    <div class="mouse"></div>
+    <div class="mouse-complex"></div>
+    <div class="data1"></div>
+</div>
+
 <script>
     var canvas = document.getElementById('main');
     canvas.width = window.innerWidth;
-    var cheight = canvas.height,
-        cwidth = canvas.width;
-
-    var ctx = canvas.getContext('2d');
 </script>
 
+<script src="graph.js"></script>
+<script src="graph.input.js"></script>
+<script>
+    var graph = new Graph(canvas);
+</script>
 <script src="sets.js"></script>
 <script src="mouse_keyboard.js"></script>
 
