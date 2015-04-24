@@ -8,6 +8,7 @@
         this.ctx = canvas.getContext('2d');
         this.cwidth = this.canvas.width;
         this.cheight = this.canvas.height;
+
         this.cratio = this.cwidth / this.cheight;
         this.canvasData;
         this.gridData = this.ctx.getImageData(0, 0, this.cwidth, this.cheight);
