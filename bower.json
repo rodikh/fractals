@@ -1,0 +1,8 @@
+{
+  "name": "fractals",
+  "version": "0.0.1",
+  "dependencies": {
+    "easeljs": "*",
+    "dat-gui": "0.5.*"
+  }
+}

@@ -5,7 +5,12 @@
 
     function Graph(canvas) {
         this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
+
+        this.stage = new createjs.Stage(this.canvas);
+
+        this.container = new createjs.Container();
+        //this.ctx = canvas.getContext('2d');
+
         this.cwidth = this.canvas.width;
         this.cheight = this.canvas.height;
         this.cratio = this.cwidth / this.cheight;
@@ -27,7 +32,7 @@
     };
 
     Graph.prototype.clear = function () {
-        this.ctx.clearRect(0, 0, this.cwidth, this.cheight);
+        this.container.clearRect(0, 0, this.cwidth, this.cheight);
         this.canvasData = this.ctx.getImageData(0, 0, this.cwidth, this.cheight);
     };
 
