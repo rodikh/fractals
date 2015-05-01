@@ -5,25 +5,33 @@
 
 /*
  TODO:
-     Show coord at mouse
-     draw grid on real whole X and Y
-     draw crosshair at 0/0 and at middle of view
-     make better zoom function
-     dynamic fidelity on zoom
+ Show coord at mouse
+ draw grid on real whole X and Y
+ draw crosshair at 0/0 and at middle of view
+ make better zoom function
+ dynamic fidelity on zoom
  */
-var maxiterations = 200;
-function runSet(evt) {
+var settings = {maxIterations: 400};
+gui.add(settings, 'maxIterations');
+function runSet() {
 
     var iteration = 0;
 
     graph.clear();
 
-    for (var row = 0; row < graph.cheight; row++) {
-        for (var col = 0; col < graph.cwidth; col++) {
-            iteration = mandelbrot(row, col, maxiterations);
+    //var columns = [graph.view.y];
+    //for (var col = 1; col < graph.cwidth; col++) {
+    //    columns[col] = (col / graph.view.zoom) + graph.view.x;
+    //}
 
-            if (iteration < maxiterations) {
+    for (var row = 0; row < graph.cheight; row++) {
+        //var runx = (row / graph.view.zoom) + graph.view.y;
+        for (var col = 0; col < graph.cwidth; col++) {
+            iteration = mandelbrot(row, col, settings.maxIterations);
+            if (iteration < settings.maxIterations) {
                 graph.putPixel(col, row, iteration);
+            } else {
+                graph.putPixel(col, row, 0);
             }
         }
     }

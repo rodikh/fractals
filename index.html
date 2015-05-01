@@ -15,6 +15,13 @@
     <div class="container page">
         <canvas id="main" height="600"></canvas>
 
+        <div class="controls">
+            <button onclick="graph.panUp()">up</button>
+            <button onclick="graph.panDown()">down</button>
+            <button onclick="graph.panLeft()">left</button>
+            <button onclick="graph.panRight()">right</button>
+        </div>
+
         <div class="console" style="font-family:'andale mono'">
             <div class="mouse"></div>
             <div class="mouse-complex"></div>
@@ -26,9 +33,12 @@
     canvas.width = canvas.parentNode.clientWidth;
 </script>
 
+<script src="bower_components/dat-gui/build/dat.gui.js"></script>
+<script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="graph.js"></script>
 <script src="graph.input.js"></script>
 <script>
+    var gui = new dat.GUI();
     var graph = new Graph(canvas);
 </script>
 <script src="sets.js"></script>
