@@ -3,6 +3,8 @@
  */
 (function () {
 
+    const COMPLEX = 2.0;
+
     function Graph(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
@@ -13,8 +15,11 @@
         this.canvasData;
         this.gridData = this.ctx.getImageData(0, 0, this.cwidth, this.cheight);
 
-        this.view = {x: 0, y: 0, zoom: 4.0};
+        this.view = {x: 0, y: 0, zoom: 4};
 
+        gui.add(this.view, 'x').step(0.00001);
+        gui.add(this.view, 'y').step(0.00001);
+        gui.add(this.view, 'zoom').step(0.000001);
         this.configureInput();
     }
 
@@ -42,6 +47,11 @@
     };
 
     Graph.prototype.putPixel = function (x, y, c) {
+
+        if (c === 0) {
+            return this.drawPixel(x, y, 0, 0, 0, 255);
+        }
+
         var r = 0,
             g = 0,
             b = 0;
@@ -67,6 +77,9 @@
 
     Graph.prototype.updateCanvas = function () {
         this.ctx.putImageData(this.canvasData, 0, 0);
+        for (var i in gui.__controllers) {
+            gui.__controllers[i].updateDisplay();
+        }
     };
 
     Graph.prototype.drawGrid = function () {
@@ -78,10 +91,10 @@
     };
 
     Graph.prototype.getComplexX = function (x) {
-        return this.view.x + ((x - this.cwidth / 2.0) * this.view.zoom / this.cwidth);
+        return this.view.x + ((x - this.cwidth / COMPLEX) * this.view.zoom / this.cwidth);
     };
     Graph.prototype.getComplexY = function (y) {
-        return this.view.y + ((y - this.cheight / 2.0) * this.view.zoom / this.cwidth);
+        return this.view.y + ((y - this.cheight / COMPLEX) * this.view.zoom / this.cwidth);
     };
     Graph.prototype.getRealX = function (cx) {
         var rfc = ((cx + 2) * this.cwidth / 4);
@@ -99,22 +112,63 @@
         var rfviewy = ((this.view.y + 1.5) * this.cheight / 3);
         var ztr = (this.cheight * this.view.zoom / 4);
         var offset = rfviewy - (ztr / 2);
-        console.log('rfc', ztr, cy);
         return Math.round((rfc - offset) / this.view.zoom * 4);
     };
     Graph.prototype.resetView = function () {
-        this.view = {x: 0, y: 0, zoom: 4.0};
+        this.view = {x: 0, y: 0, zoom: 1};
     };
 
     Graph.prototype.zoom = function (multiplier, x, y) {
-        this.view.zoom /= multiplier || 2;
-        if (x === undefined) {
+        var self = this;
+        //this.animateZoom(multiplier, x, y, function () {
+        self.view.zoom = multiplier;
 
+        if (x !== undefined) {
+            self.view.x = x;
         }
-        this.view.x += (x - this.cwidth / 2.0) * this.view.zoom / this.cwidth * 2;
-        this.view.y += (y - this.cheight / 2.0) * this.view.zoom / this.cwidth * 2;
+        if (y !== undefined) {
+            self.view.y = y;
+        }
 
+        self.trigger('view', self.view);
+        //});
+    };
+
+    Graph.prototype.panUp = function () {
+        this.view.y -= 0.1 * this.view.zoom;
         this.trigger('view', this.view);
+    };
+    Graph.prototype.panDown = function () {
+        this.view.y += 0.1 * this.view.zoom;
+        this.trigger('view', this.view);
+    };
+    Graph.prototype.panLeft = function () {
+        this.view.x -= 0.1 * this.view.zoom;
+        this.trigger('view', this.view);
+    };
+    Graph.prototype.panRight = function () {
+        this.view.x += 0.1 * this.view.zoom;
+        this.trigger('view', this.view);
+    };
+
+    Graph.prototype.animateZoom = function (multiplier, x, y, cb) {
+        var self = this;
+        var scaleTo = this.view.zoom / multiplier;
+        console.log('scaleTo', scaleTo, this.view.zoom, multiplier);
+        $({scale: 1, x: this.view.x, y: this.view.y}).animate({scale: scaleTo}, {
+            duration: 1000,
+            easing: 'swing', // can be anything
+            step: function () { // called on every step
+                //console.log('stepping', this.scale);
+                self.updateCanvas();
+                var ncwidth = this.scale * self.cwidth,
+                    ncheight = this.scale * self.cheight;
+                self.ctx.drawImage(self.canvas, (self.getRealX(x)), self.getRealY(y), ncwidth, ncheight);
+                self.ctx.restore();
+
+            },
+            complete: (typeof cb == "function") ? cb : undefined
+        });
     };
 
     window.Graph = Graph;
