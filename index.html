@@ -6,28 +6,28 @@
     <link href="/css/site.css" rel="stylesheet">
 </head>
 <body>
-    <header class="container-full text-center page-header">
-        <h1>Fractals</h1>
+<header class="container-full text-center page-header">
+    <h1>Fractals</h1>
 
-        <h2 class="lead">Mandelbrot Set</h2>
-    </header>
+    <h2 class="lead">Mandelbrot Set</h2>
+</header>
 
-    <div class="container page">
-        <canvas id="main" height="600"></canvas>
+<div class="container page">
+    <canvas id="main" height="600"></canvas>
 
-        <div class="controls">
-            <button onclick="graph.panUp()">up</button>
-            <button onclick="graph.panDown()">down</button>
-            <button onclick="graph.panLeft()">left</button>
-            <button onclick="graph.panRight()">right</button>
-        </div>
-
-        <div class="console" style="font-family:'andale mono'">
-            <div class="mouse"></div>
-            <div class="mouse-complex"></div>
-            <div class="data1"></div>
-        </div>
+    <div class="controls">
+        <button class="btn btn-primary" onclick="graph.panUp()">up</button>
+        <button class="btn btn-primary" onclick="graph.panDown()">down</button>
+        <button class="btn btn-primary" onclick="graph.panLeft()">left</button>
+        <button class="btn btn-primary" onclick="graph.panRight()">right</button>
     </div>
+
+    <div class="console" style="font-family:'andale mono'">
+        <div class="mouse"></div>
+        <div class="mouse-complex"></div>
+        <div class="data1"></div>
+    </div>
+</div>
 <script>
     var canvas = document.getElementById('main');
     canvas.width = canvas.parentNode.clientWidth;
@@ -37,11 +37,13 @@
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="graph.js"></script>
 <script src="graph.input.js"></script>
+<script src="sets.js"></script>
+
 <script>
     var gui = new dat.GUI();
     var graph = new Graph(canvas);
+    var mandelbrot = new Mandelbrot(graph);
 </script>
-<script src="sets.js"></script>
 
 </body>
 </html>

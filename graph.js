@@ -10,9 +10,7 @@
         this.ctx = canvas.getContext('2d');
         this.cwidth = this.canvas.width;
         this.cheight = this.canvas.height;
-
-        this.cratio = this.cwidth / this.cheight;
-        this.canvasData;
+        this.canvasData = this.ctx.getImageData(0, 0, this.cwidth, this.cheight);;
         this.gridData = this.ctx.getImageData(0, 0, this.cwidth, this.cheight);
 
         this.view = {x: 0, y: 0, zoom: 4};
@@ -20,6 +18,9 @@
         gui.add(this.view, 'x').step(0.00001);
         gui.add(this.view, 'y').step(0.00001);
         gui.add(this.view, 'zoom').step(0.000001);
+        gui.add(this.settings, 'colorFn', Object.keys(colorFns)).onFinishChange(function () {
+            graph.trigger('view')
+        });
         this.configureInput();
     }
 
@@ -28,6 +29,7 @@
     };
 
     Graph.prototype.trigger = function (name, args) {
+        console.log('args', args);
         var event = new CustomEvent('custom-' + name, {detail: args});
         this.canvas.dispatchEvent(event);
     };
@@ -47,32 +49,12 @@
     };
 
     Graph.prototype.putPixel = function (x, y, c) {
-
         if (c === 0) {
             return this.drawPixel(x, y, 0, 0, 0, 255);
         }
 
-        var r = 0,
-            g = 0,
-            b = 0;
-
-        if (c < 10) {
-            b = 100 + c * 10;
-        } else {
-            b = 200;
-        }
-
-        if (c > 9 && c < 30) {
-            g = (c - 9) * 10
-        } else if (c > 29) {
-            g = 200;
-        }
-
-        if (c > 29) {
-            r = (c - 29) * 5;
-        }
-
-        this.drawPixel(x, y, r, g, b, 255);
+        c = colorFns[this.settings.colorFn](c);
+        this.drawPixel(x, y, c.r, c.g, c.b, 255);
     };
 
     Graph.prototype.updateCanvas = function () {
@@ -91,29 +73,12 @@
     };
 
     Graph.prototype.getComplexX = function (x) {
-        return this.view.x + ((x - this.cwidth / COMPLEX) * this.view.zoom / this.cwidth);
+        return this.view.x + ((x - this.cwidth / 2) / this.cwidth * this.view.zoom );
     };
     Graph.prototype.getComplexY = function (y) {
-        return this.view.y + ((y - this.cheight / COMPLEX) * this.view.zoom / this.cwidth);
+        return this.view.y + ((y - this.cheight / 2) / this.cwidth * this.view.zoom);
     };
-    Graph.prototype.getRealX = function (cx) {
-        var rfc = ((cx + 2) * this.cwidth / 4);
-        var rfviewx = ((this.view.x + 2) * this.cwidth / 4);
-        var ztr = (this.cwidth * this.view.zoom / 4);
-        var offset = rfviewx - (ztr / 2);
-        //console.log('offset', offset, rfc);
-        return Math.round((rfc - offset) / this.view.zoom * 4);
-    };
-    Graph.prototype.getRealY = function (cy) {
-        var rfc = ((cy ) * this.cwidth / 4);
-        ///////////
-        ////////// CONTINUE HERE
-        //////////
-        var rfviewy = ((this.view.y + 1.5) * this.cheight / 3);
-        var ztr = (this.cheight * this.view.zoom / 4);
-        var offset = rfviewy - (ztr / 2);
-        return Math.round((rfc - offset) / this.view.zoom * 4);
-    };
+
     Graph.prototype.resetView = function () {
         this.view = {x: 0, y: 0, zoom: 1};
     };
@@ -130,6 +95,7 @@
             self.view.y = y;
         }
 
+        self.trigger('zoom', self.view.zoom);
         self.trigger('view', self.view);
         //});
     };
@@ -151,24 +117,44 @@
         this.trigger('view', this.view);
     };
 
-    Graph.prototype.animateZoom = function (multiplier, x, y, cb) {
-        var self = this;
-        var scaleTo = this.view.zoom / multiplier;
-        console.log('scaleTo', scaleTo, this.view.zoom, multiplier);
-        $({scale: 1, x: this.view.x, y: this.view.y}).animate({scale: scaleTo}, {
-            duration: 1000,
-            easing: 'swing', // can be anything
-            step: function () { // called on every step
-                //console.log('stepping', this.scale);
-                self.updateCanvas();
-                var ncwidth = this.scale * self.cwidth,
-                    ncheight = this.scale * self.cheight;
-                self.ctx.drawImage(self.canvas, (self.getRealX(x)), self.getRealY(y), ncwidth, ncheight);
-                self.ctx.restore();
+    var colorFns = {
+        grayscale: function (c) {
+            return {r: c, g: c, b: c};
+        },
+        red: function (c) {
+            return {r: c, g: 0, b: 0};
+        },
 
-            },
-            complete: (typeof cb == "function") ? cb : undefined
-        });
+        default: function (c) {
+            if (c === 0) {
+                return this.drawPixel(x, y, 0, 0, 0, 255);
+            }
+            var r = 0,
+                g = 0,
+                b = 0;
+
+            if (c < 10) {
+                b = 100 + c * 10;
+            } else {
+                b = 200;
+            }
+
+            if (c > 9 && c < 30) {
+                g = (c - 9) * 10
+            } else if (c > 29) {
+                g = 200;
+            }
+
+            if (c > 29) {
+                r = (c - 29) * 5;
+            }
+
+            return {r: r, g: g, b: b};
+        }
+    };
+
+    Graph.prototype.settings = {
+        colorFn: 'grayscale'
     };
 
     window.Graph = Graph;
